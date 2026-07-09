@@ -1,11 +1,12 @@
 import { Hono } from "hono";
 import { rateLimiter } from "./middleware";
+import UserBanner from "./components/UserBanner";
+import componentRouter from "./components/router";
+import { getInfo } from "./utils";
 
 const app = new Hono<{ Bindings: CloudflareBindings }>();
 
-app.get("/message", (c) => {
-    return c.text("Hello Hono!");
-});
+app.route("/", componentRouter) // components for banners and stats
 
 app.get("/api/v1/stats/:username", rateLimiter, async (c) => {
     try {
@@ -26,87 +27,11 @@ app.get("/api/v1/stats/:username", rateLimiter, async (c) => {
 })
 
 app.get("/graphql", rateLimiter, async (c) => {
-    const login = c.req.query("user");
-    if (!login) {
+    const user = c.req.query("user");
+    if (!user) {
         return c.json({ error: "Missing 'user' query param" }, 400);
     }
-
-    const res = await fetch("https://api.github.com/graphql", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "User-Agent": "github-stats-api",
-            "Authorization": `Bearer ${c.env.GITHUB_TOKEN}` // wrangler secret put
-        },
-        body: JSON.stringify({
-            query: `
-                query($login: String!) {
-                  user(login: $login) {
-                    login
-                    name
-                    avatarUrl
-                    bio
-                    repositories(
-                      first: 100
-                      ownerAffiliations: OWNER
-                      orderBy: { field: UPDATED_AT, direction: DESC }
-                      isFork: false
-                    ) {
-                      totalCount
-                      nodes {
-                        name
-                        description
-                        url
-                        stargazerCount
-                        forkCount
-                        isPrivate
-                        primaryLanguage {
-                          name
-                          color
-                        }
-                        languages(first: 10, orderBy: { field: SIZE, direction: DESC }) {
-                          edges {
-                            size
-                            node {
-                              name
-                              color
-                            }
-                          }
-                        }
-                        defaultBranchRef {
-                          target {
-                            ... on Commit {
-                              history(first: 1) {
-                                totalCount
-                                nodes {
-                                  message
-                                  committedDate
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                    contributionsCollection {
-                      totalCommitContributions
-                      totalRepositoriesWithContributedCommits
-                      contributionCalendar {
-                        totalContributions
-                      }
-                    }
-                  }
-                }
-            `,
-            variables: { login }
-        })
-    });
-
-    if (!res.ok) {
-        return c.json({ error: "GitHub API request failed", status: res.status }, 502);
-    }
-
-    const data = await res.json();
+    const data = await getInfo(user, c.env.GITHUB_TOKEN)
     return c.json(data);
 })
 
