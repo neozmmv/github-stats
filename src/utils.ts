@@ -91,7 +91,7 @@ export async function getInfo(username: string, token: string): Promise<unknown 
     return data
 }
 
-export async function languagePercentages(username: string, token: string): Promise<Map<string, number> | null> {
+export async function getLanguageMap(username: string, token: string): Promise<Map<string, number> | null> {
     const languageMap = new Map<string, number>()
     const graphqldata = await getInfo(username, token) as GithubGraphQLResponse
     const repos = graphqldata.data?.user?.repositories?.nodes
@@ -102,5 +102,6 @@ export async function languagePercentages(username: string, token: string): Prom
             languageMap.set(r.node.name, r.size + current)
         })
     }
-    return languageMap
+    // genius type stuff
+    return new Map([...languageMap.entries()].sort((a,b) => b[1] - a[1]))
 }

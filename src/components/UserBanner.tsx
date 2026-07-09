@@ -1,4 +1,4 @@
-import { getInfo, getUser } from "../utils"
+import { getInfo, getLanguageMap, getUser } from "../utils"
 
 /* 
 {
@@ -40,8 +40,9 @@ import { getInfo, getUser } from "../utils"
 
 export default async function UserBanner(props: {username: string, token: string}) {
     const data = await getUser(props.username) as any
-    const graphqldata = await getInfo(props.username, props.token)
-    console.log(graphqldata.data.user.repositories)
+    const langMap = await getLanguageMap(props.username, props.token)
+    if (!langMap) throw new Error("UserBanner.tsx - something went wrong with the langMap.")
+    const top5langs = [...langMap?.entries()].slice(0,5)
     return (
         <html>
             <head>
@@ -50,7 +51,9 @@ export default async function UserBanner(props: {username: string, token: string
             <body>
                 <div class="w-96 h-48 bg-gray-900 rounded-md">
                     <p class="text-center pt-4">Most used languages</p>
-                    
+                    {top5langs.map(([name, size]) => (
+                        <p>{name}: {size}</p>
+                    ))}
                 </div>
             </body>
         </html>

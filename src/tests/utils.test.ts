@@ -1,9 +1,9 @@
 import { test, expect } from "bun:test";
-import { languagePercentages } from "../utils";
+import { getLanguageMap } from "../utils";
 
 
-test("languagePercentages aggregates language sizes correctly", async () => {
-    const result = await languagePercentages("neozmmv", process.env.GITHUB_TOKEN ?? "");
+test("getLanguageMap aggregates language sizes correctly", async () => {
+    const result = await getLanguageMap("neozmmv", process.env.GITHUB_TOKEN ?? "");
     console.log(result);
     expect(result).not.toBeNull();
 }, 15000);
