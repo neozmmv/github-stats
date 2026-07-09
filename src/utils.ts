@@ -1,6 +1,16 @@
-import { Hono } from "hono";
+import { GithubGraphQLResponse } from "./types/github";
 
-export async function getInfo(username: string, token: string): Promise<unknown> {
+export async function getUser(username: string) {
+    const res = await fetch(`https://api.github.com/users/${username}`, {
+        headers: {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.5 Safari/537.36"
+        }
+    })
+    return await res.json()
+}
+
+
+export async function getInfo(username: string, token: string): Promise<unknown | null> {
     const res = await fetch("https://api.github.com/graphql", {
         method: "POST",
         headers: {
@@ -79,4 +89,18 @@ export async function getInfo(username: string, token: string): Promise<unknown>
     const data = await res.json()
 
     return data
+}
+
+export async function languagePercentages(username: string, token: string): Promise<Map<string, number> | null> {
+    const languageMap = new Map<string, number>()
+    const graphqldata = await getInfo(username, token) as GithubGraphQLResponse
+    const repos = graphqldata.data?.user?.repositories?.nodes
+    if (!repos) return null
+    for(let repo of repos) {
+        repo.languages.edges.forEach(r => {
+            const current = languageMap.get(r.node.name) ?? 0
+            languageMap.set(r.node.name, r.size + current)
+        })
+    }
+    return languageMap
 }

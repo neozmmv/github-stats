@@ -8,7 +8,7 @@ componentRouter.get("/banner", async (c) => {
     if(!user) {
         return c.json({error: "Provide ?username parameter"}, 400)
     }
-    return c.html(<UserBanner username={user}/>)
+    return c.html(<UserBanner username={user} token={c.env.GITHUB_TOKEN}/>)
 })
 
 export default componentRouter;
