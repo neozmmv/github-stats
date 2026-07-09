@@ -25,7 +25,7 @@ app.get("/api/v1/stats/:username", rateLimiter, async (c) => {
     }
 })
 
-app.get("/graphql", async (c) => {
+app.get("/graphql", rateLimiter, async (c) => {
     const login = c.req.query("user");
     if (!login) {
         return c.json({ error: "Missing 'user' query param" }, 400);
