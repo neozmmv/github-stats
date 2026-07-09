@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { rateLimiter } from "./middleware";
 
 const app = new Hono<{ Bindings: CloudflareBindings }>();
 
@@ -6,7 +7,7 @@ app.get("/message", (c) => {
     return c.text("Hello Hono!");
 });
 
-app.get("/api/v1/stats/:username", async (c) => {
+app.get("/api/v1/stats/:username", rateLimiter, async (c) => {
     try {
         const username = c.req.param('username')
         const res = await fetch(`https://api.github.com/users/${username}`, {
