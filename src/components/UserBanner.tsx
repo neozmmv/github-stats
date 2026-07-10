@@ -16,8 +16,11 @@ export default async function UserBanner(props: { username: string, token: strin
     const total = top5langs.reduce((sum, [, data]) => sum + data.size, 0)
     const fontData = await loadGoogleFont("Roboto")
 
+    const isValidHex = props.bgColor && props.bgColor.length === 6
+    const backgroundColor = isValidHex ? `#${props.bgColor}` : "#111827"
+
     const tsx = (
-        <div style={{ ...twj(`w-96 rounded-md ${backColor} px-4 pb-4 pt-2`), display: "flex", flexDirection: "column" }}>
+        <div style={{ ...twj(`w-96 rounded-md px-4 pb-4 pt-2`), backgroundColor, display: "flex", flexDirection: "column" }}>
             <p style={twj("text-center text-white text-xl mb-3")}>Most used languages</p>
 
             <div style={{ ...twj("w-full h-3 rounded-full overflow-hidden"), display: "flex" }}>
