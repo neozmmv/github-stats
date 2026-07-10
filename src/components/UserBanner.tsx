@@ -1,61 +1,58 @@
-import { getInfo, getLanguageMap, getUser } from "../utils"
+/** @jsxImportSource react */
+import { getLanguageMap, loadGoogleFont } from "../utils"
+import satori from "satori"
+import { twj } from "tw-to-css"
 
-/* 
-{
-  login: 'username',
-  id: xxxxxxxx,
-  node_id: 'xxxxxxxxxx',
-  avatar_url: 'https://avatars.githubusercontent.com/u/xxxxxxx?v=4',
-  gravatar_id: '',
-  url: 'https://api.github.com/users/xxxxxxx',
-  html_url: 'https://github.com/xxxxxx',
-  followers_url: 'https://api.github.com/users/xxxxxx/followers',
-  following_url: 'https://api.github.com/users/xxxxxx/following{/other_user}',
-  gists_url: 'https://api.github.com/users/xxxxxxxx/gists{/gist_id}',
-  starred_url: 'https://api.github.com/users/xxxxxxx/starred{/owner}{/repo}',
-  subscriptions_url: 'https://api.github.com/users/xxxxxxx/subscriptions',
-  organizations_url: 'https://api.github.com/users/xxxxxxx/orgs',
-  repos_url: 'https://api.github.com/users/xxxxxxx/repos',
-  events_url: 'https://api.github.com/users/xxxxxx/events{/privacy}',
-  received_events_url: 'https://api.github.com/users/xxxxxxx/received_events',
-  type: 'User',
-  user_view_type: 'public',
-  site_admin: false,
-  name: 'xxxxxxxxxxxx',
-  company: null,
-  blog: 'https://xxxxxxx.xxx/',
-  location: 'xxxxxxxx',
-  email: null,
-  hireable: true,
-  bio: 'xxxxxxxxxxxxxxx',
-  twitter_username: null,
-  public_repos: 0,
-  public_gists: 0,
-  followers: 0,
-  following: 0,
-  created_at: '2021-05-01T02:49:22Z',
-  updated_at: '2026-07-05T14:05:12Z'
-}
-*/
-
-export default async function UserBanner(props: {username: string, token: string}) {
-    const data = await getUser(props.username) as any
+export default async function UserBanner(props: { username: string, token: string, bgColor: string }) {
     const langMap = await getLanguageMap(props.username, props.token)
     if (!langMap) throw new Error("UserBanner.tsx - something went wrong with the langMap.")
-    const top5langs = [...langMap?.entries()].slice(0,5)
-    return (
-        <html>
-            <head>
-                <link rel="stylesheet" href="/output.css" />
-            </head>
-            <body>
-                <div class="w-96 h-48 bg-gray-900 rounded-md">
-                    <p class="text-center pt-4">Most used languages</p>
-                    {top5langs.map(([name, size]) => (
-                        <p>{name}: {size}</p>
-                    ))}
-                </div>
-            </body>
-        </html>
+
+    let backColor = "bg-gray-900"
+    if (props.bgColor && props.bgColor.length === 7 && props.bgColor.startsWith("#")) {
+        backColor = `bg-[${props.bgColor}]`
+    }
+
+    const top5langs = [...langMap.entries()].slice(0, 5)
+    const total = top5langs.reduce((sum, [, data]) => sum + data.size, 0)
+    const fontData = await loadGoogleFont("Roboto")
+
+    const tsx = (
+        <div style={{ ...twj(`w-96 rounded-md ${backColor} px-4 pb-4 pt-2`), display: "flex", flexDirection: "column" }}>
+            <p style={twj("text-center text-white text-xl mb-3")}>Most used languages</p>
+
+            <div style={{ ...twj("w-full h-3 rounded-full overflow-hidden"), display: "flex" }}>
+                {top5langs.map(([name, data]) => {
+                    const percentage = (data.size / total) * 100
+                    return (
+                        <div style={{ width: `${percentage}%`, backgroundColor: data.color, height: "100%" }} />
+                    )
+                })}
+            </div>
+
+            <div style={{ ...twj("mt-3"), display: "flex", flexDirection: "column", gap: 4 }}>
+                {top5langs.map(([name, data]) => {
+                    const percentage = ((data.size / total) * 100).toFixed(1)
+                    return (
+                        <div style={{ ...twj("justify-between text-sm text-white"), display: "flex", alignItems: "center" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                <div style={{ ...twj("w-3 h-3 rounded-full"), backgroundColor: data.color }} />
+                                <span>{name}</span>
+                            </div>
+                            <span style={twj("text-gray-400")}>{percentage}%</span>
+                        </div>
+                    )
+                })}
+            </div>
+        </div>
     )
+
+    const svg = await satori(tsx, {
+        width: 400,
+        height: 280,
+        fonts: [
+            { name: "Roboto", data: fontData, weight: 400, style: "normal" }
+        ]
+    })
+
+    return svg
 }
