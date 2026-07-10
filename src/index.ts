@@ -8,6 +8,24 @@ const app = new Hono<{ Bindings: CloudflareBindings }>();
 
 app.route("/", componentRouter) // components for banners and stats
 
+app.get("/routes", async (c) => {
+  return c.json({routes: [
+    {
+      url: "/languages",
+      info: "Get a SVG for showing your top languages!",
+      params: ["username", "color"]
+    },
+    {
+      url: "/api/v1/stats/:username",
+      info: "Get simple info from your GitHub profile"
+    },
+    {
+      url: "/graphql",
+      info: "Get advanced info from your GitHub profile"
+    }
+  ]})
+})
+
 app.get("/api/v1/stats/:username", rateLimiter, async (c) => {
     try {
         const username = c.req.param('username')

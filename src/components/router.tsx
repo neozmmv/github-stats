@@ -3,7 +3,7 @@ import UserBanner from "./UserBanner";
 
 const componentRouter = new Hono<{ Bindings: CloudflareBindings }>();
 
-componentRouter.get("/banner", async (c) => {
+componentRouter.get("/languages", async (c) => {
     const cache = caches.default
     const cacheKey = new Request(c.req.url, c.req.raw)
 
