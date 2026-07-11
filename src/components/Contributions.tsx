@@ -81,8 +81,8 @@ export default async function Contributions(props: { username: string, token: st
     const backgroundColor = isValidHex ? `#${props.bgColor}` : "#111827"
 
     const tsx = (
-        <div style={{ ...twj(`w-96 rounded-md px-4 pb-4 pt-2`), backgroundColor, display: "flex", flexDirection: "column", height: 240 }}>
-            <p style={twj("text-center text-white text-xl mb-3")}>{`${props.username}'s GitHub Contributions`}</p>
+        <div style={{ ...twj(`rounded-md px-4 pb-4 pt-2`), backgroundColor, display: "flex", flexDirection: "column", height: 240, minWidth: 384 }}>
+            <p style={{ ...twj("text-center text-white text-xl mb-3"), whiteSpace: "nowrap" }}>{`${props.username}'s GitHub Contributions`}</p>
 
             <div style={{ ...twj("mt-1"), display: "flex", flexDirection: "column", gap: 6 }}>
                 <StatRow
@@ -108,7 +108,6 @@ export default async function Contributions(props: { username: string, token: st
     )
 
     const svg = await satori(tsx, {
-        width: 400,
         height: 280,
         fonts: [
             { name: "Roboto", data: fontData, weight: 400, style: "normal" }
