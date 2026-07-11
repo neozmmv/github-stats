@@ -10,6 +10,7 @@
 	"dependencies": {
 		"hono": "^4.12.27",
 		"react": "^19.2.7",
+		"react-icons": "^5.7.0",
 		"satori": "^0.26.0",
 		"tw-to-css": "^0.0.12"
 	},

@@ -20,7 +20,7 @@ export default async function Languages(props: { username: string, token: string
     const backgroundColor = isValidHex ? `#${props.bgColor}` : "#111827"
 
     const tsx = (
-        <div style={{ ...twj(`w-96 rounded-md px-4 pb-4 pt-2`), backgroundColor, display: "flex", flexDirection: "column" }}>
+        <div style={{ ...twj(`w-96 rounded-md px-4 pb-4 pt-2`), backgroundColor, display: "flex", flexDirection: "column", height: 240 }}>
             <p style={twj("text-center text-white text-xl mb-3")}>Most used languages</p>
 
             <div style={{ ...twj("w-full h-3 rounded-full overflow-hidden"), display: "flex" }}>
