@@ -16,6 +16,11 @@ app.get("/routes", async (c) => {
       params: ["username", "color"]
     },
     {
+      url: "/contributions",
+      info: "Get a SVG for showing your GitHub contributions!",
+      params: ["username", "color"]
+    },
+    {
       url: "/api/v1/stats/:username",
       info: "Get simple info from your GitHub profile"
     },

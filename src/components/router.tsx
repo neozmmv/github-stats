@@ -4,7 +4,7 @@ import Contributions from "./Contributions";
 
 const componentRouter = new Hono<{ Bindings: CloudflareBindings }>();
 
-const SOFT_TTL_MS = 1000 //6 * 60 * 60 * 1000       // 6h
+const SOFT_TTL_MS = 6 * 60 * 60 * 1000       // 6h
 const HARD_TTL_SECONDS = 7 * 24 * 60 * 60    // 7d
 
 componentRouter.get("/languages", async (c) => {

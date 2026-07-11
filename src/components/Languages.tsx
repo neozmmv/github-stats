@@ -32,7 +32,7 @@ export default async function Languages(props: { username: string, token: string
                 })}
             </div>
 
-            <div style={{ ...twj("mt-3"), display: "flex", flexDirection: "column", gap: 4 }}>
+            <div style={{ ...twj("mt-3"), display: "flex", flexDirection: "column", flex: 1, justifyContent: "space-between" }}>
                 {top5langs.map(([name, data]) => {
                     const percentage = ((data.size / total) * 100).toFixed(1)
                     return (
