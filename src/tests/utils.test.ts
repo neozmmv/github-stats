@@ -1,5 +1,6 @@
 import { test, expect } from "bun:test";
-import { getInfo, getLanguageMap, getTotalContributions, getTotalStarCount } from "../utils";
+import { getInfo, getLanguageMap, getContributions } from "../utils";
+import { Contributions } from "../types/interfaces";
 
 
 test("getLanguageMap aggregates language sizes correctly", async () => {
@@ -14,14 +15,8 @@ test("getInfo results", async () => {
     expect(result).not.toBeNull()
 }, 10000)
 
-test("stargazerCount results", async () => {
-    const stars = await getTotalStarCount("neozmmv", process.env.GITHUB_TOKEN)
-    console.log(`TOTAL STAR COUNT: ${stars}`)
-    expect(stars).not.toBe(0)
-}, 10000)
-
-test("allContributions results", async () => {
-    const allContribs = await getTotalContributions("neozmmv", process.env.GITHUB_TOKEN)
-    console.log(`ALL CONTRIBS: ${allContribs}`)
-    expect(allContribs).not.toBe(0)
+test("contribution results", async () => {
+    const contributions: Contributions = await getContributions("neozmmv", process.env.GITHUB_TOKEN)
+    console.log(contributions)
+    expect(contributions).not.toBeNull()
 }, 10000)

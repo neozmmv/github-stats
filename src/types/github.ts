@@ -53,6 +53,7 @@ interface GithubContributionCalendar {
 
 interface GithubContributionsCollection {
     totalCommitContributions: number;
+    totalPullRequestContributions: number;
     totalRepositoriesWithContributedCommits: number;
     contributionCalendar: GithubContributionCalendar;
 }

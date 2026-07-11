@@ -1,4 +1,5 @@
 import { GithubGraphQLResponse } from "./types/github";
+import { Contributions } from "./types/interfaces";
 
 interface LanguageData {
   size: number;
@@ -78,6 +79,7 @@ export async function getInfo(
                     }
                     contributionsCollection {
                       totalCommitContributions
+                      totalPullRequestContributions
                       totalRepositoriesWithContributedCommits
                       contributionCalendar {
                         totalContributions
@@ -149,7 +151,7 @@ export async function loadGoogleFont(fontFamily: string): Promise<ArrayBuffer> {
     return fontRes.arrayBuffer();
 }
 
-export async function getTotalStarCount(username: string, token:string) {
+/* export async function getTotalStarCount(username: string, token:string): Promise<number> {
     const info = await getInfo(username, token) as GithubGraphQLResponse
     const repos = info.data.user?.repositories.nodes
     if(!repos) return 0
@@ -160,8 +162,39 @@ export async function getTotalStarCount(username: string, token:string) {
     return count
 }
 
-export async function getTotalContributions(username: string, token: string) {
+export async function getTotalContributions(username: string, token: string): Promise<number> {
     const info = await getInfo(username, token) as GithubGraphQLResponse
     const allContributions = info.data.user?.contributionsCollection.contributionCalendar.totalContributions
     return allContributions ?? 0
+}
+
+export async function getTotalPRContributions(username: string, token: string): Promise<number> {
+    const info = await getInfo(username, token) as GithubGraphQLResponse
+    const allPRs = info.data.user?.contributionsCollection.totalPullRequestContributions
+    return allPRs ?? 0
+} */
+
+export async function getContributions(username: string, token: string): Promise<Contributions> {
+    // stars
+    const info = await getInfo(username, token) as GithubGraphQLResponse
+    const repos = info.data.user?.repositories.nodes
+    if(!repos) return {
+        stars: 0,
+        contributions: 0,
+        pullRequests: 0
+    }
+    let stars = 0
+    for(const repo of repos) {
+        stars += repo.stargazerCount
+    }
+    // commits and PRs
+    const allContributions = info.data.user?.contributionsCollection.contributionCalendar.totalContributions
+    const allPRs = info.data.user?.contributionsCollection.totalPullRequestContributions
+
+    const contributions: Contributions = {
+        stars: stars,
+        contributions: allContributions ?? 0,
+        pullRequests: allPRs ?? 0
+    }
+    return contributions
 }
