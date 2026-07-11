@@ -1,31 +1,33 @@
 import { GithubGraphQLResponse } from "./types/github";
 
 interface LanguageData {
-    size: number;
-    color: string;
+  size: number;
+  color: string;
 }
-
 
 export async function getUser(username: string) {
-    const res = await fetch(`https://api.github.com/users/${username}`, {
-        headers: {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.5 Safari/537.36"
-        }
-    })
-    return await res.json()
+  const res = await fetch(`https://api.github.com/users/${username}`, {
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.5 Safari/537.36",
+    },
+  });
+  return await res.json();
 }
 
-
-export async function getInfo(username: string, token: string): Promise<unknown | null> {
+export async function getInfo(
+    username: string,
+    token: string,
+    ): Promise<unknown | null> {
     const res = await fetch("https://api.github.com/graphql", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "User-Agent": "github-stats-api",
-            "Authorization": `Bearer ${token}` // wrangler secret put
-        },
-        body: JSON.stringify({
-            query: `
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+        "User-Agent": "github-stats-api",
+        Authorization: `Bearer ${token}`, // wrangler secret put
+    },
+    body: JSON.stringify({
+      query: `
                 query($username: String!) {
                   user(login: $username) {
                     login
@@ -84,56 +86,82 @@ export async function getInfo(username: string, token: string): Promise<unknown 
                   }
                 }
             `,
-            variables: { username }
-        })
-    });
+      variables: { username },
+    }),
+  });
 
-    if(!res.ok) {
-        return null
+    if (!res.ok) {
+        return null;
     }
 
-    const data = await res.json()
+    const data = await res.json();
 
-    return data
+    return data;
 }
 
-export async function getLanguageMap(username: string, token: string): Promise<Map<string, LanguageData> | null> {
-    const languageMap = new Map<string, LanguageData>()
-    const graphqldata = await getInfo(username, token) as GithubGraphQLResponse
-    const repos = graphqldata.data?.user?.repositories?.nodes
-    if (!repos) return null
+export async function getLanguageMap(
+    username: string,
+    token: string,
+    ): Promise<Map<string, LanguageData> | null> {
+    const languageMap = new Map<string, LanguageData>();
+    const graphqldata = (await getInfo(username, token)) as GithubGraphQLResponse;
+    const repos = graphqldata.data?.user?.repositories?.nodes;
+    if (!repos) return null;
 
     for (const repo of repos) {
-        repo.languages.edges.forEach(edge => {
-            const current = languageMap.get(edge.node.name)?.size ?? 0
-            languageMap.set(edge.node.name, {
-                size: edge.size + current,
-                color: edge.node.color ?? "#888888"
-            })
-        })
-    }
+        repo.languages.edges.forEach((edge) => {
+        const current = languageMap.get(edge.node.name)?.size ?? 0;
+        languageMap.set(edge.node.name, {
+            size: edge.size + current,
+            color: edge.node.color ?? "#888888",
+        });
+    });
+  }
 
-    // genius type stuff
-    return new Map([...languageMap.entries()].sort((a, b) => b[1].size - a[1].size))
+  // genius type stuff
+    return new Map(
+        [...languageMap.entries()].sort((a, b) => b[1].size - a[1].size),
+    );
 }
 
 export async function loadGoogleFont(fontFamily: string): Promise<ArrayBuffer> {
-    const url = new URL("https://fonts.googleapis.com/css2")
-    url.searchParams.append("family", fontFamily)
+    const url = new URL("https://fonts.googleapis.com/css2");
+    url.searchParams.append("family", fontFamily);
 
-    const css = await fetch(url.toString()).then(res => res.text())
+    const css = await fetch(url.toString()).then((res) => res.text());
 
-    const match = css.match(/src:\s*url\(([^)]+)\)\s*format\('(opentype|truetype)'\)/)
-    const fontUrl = match?.[1]
+    const match = css.match(
+        /src:\s*url\(([^)]+)\)\s*format\('(opentype|truetype)'\)/,
+    );
+    const fontUrl = match?.[1];
 
     if (!fontUrl) {
-        throw new Error(`Unable to extract font URL from Google Fonts CSS response`)
+        throw new Error(
+        `Unable to extract font URL from Google Fonts CSS response`,
+        );
     }
 
-    const fontRes = await fetch(fontUrl)
+    const fontRes = await fetch(fontUrl);
     if (!fontRes.ok) {
-        throw new Error(`Failed to fetch font file: ${fontRes.status}`)
+        throw new Error(`Failed to fetch font file: ${fontRes.status}`);
     }
 
-    return fontRes.arrayBuffer()
+    return fontRes.arrayBuffer();
+}
+
+export async function getTotalStarCount(username: string, token:string) {
+    const info = await getInfo(username, token) as GithubGraphQLResponse
+    const repos = info.data.user?.repositories.nodes
+    if(!repos) return 0
+    let count = 0
+    for(const repo of repos) {
+        count += repo.stargazerCount
+    }
+    return count
+}
+
+export async function getTotalContributions(username: string, token: string) {
+    const info = await getInfo(username, token) as GithubGraphQLResponse
+    const allContributions = info.data.user?.contributionsCollection.contributionCalendar.totalContributions
+    return allContributions ?? 0
 }
