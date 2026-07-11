@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { rateLimiter } from "./middleware";
-import UserBanner from "./components/UserBanner";
+import UserBanner from "./components/Languages";
 import componentRouter from "./components/router";
 import { getInfo, getUser } from "./utils";
 

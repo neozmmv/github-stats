@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import UserBanner from "./UserBanner";
+import Languages from "./Languages";
 
 const componentRouter = new Hono<{ Bindings: CloudflareBindings }>();
 
@@ -19,7 +19,7 @@ componentRouter.get("/languages", async (c) => {
             throw new Error("Missing username")
         }
 
-        const svg = await UserBanner({ username: user, token: c.env.GITHUB_TOKEN, bgColor: bgColor as string })
+        const svg = await Languages({ username: user, token: c.env.GITHUB_TOKEN, bgColor: bgColor as string })
 
         const response = new Response(svg, {
             status: 200,

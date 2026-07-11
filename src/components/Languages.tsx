@@ -3,9 +3,9 @@ import { getLanguageMap, loadGoogleFont } from "../utils"
 import satori from "satori"
 import { twj } from "tw-to-css"
 
-export default async function UserBanner(props: { username: string, token: string, bgColor: string }) {
+export default async function Languages(props: { username: string, token: string, bgColor: string }) {
     const langMap = await getLanguageMap(props.username, props.token)
-    if (!langMap) throw new Error("UserBanner.tsx - something went wrong with the langMap.")
+    if (!langMap) throw new Error("Languages.tsx - something went wrong with the langMap.")
 
     let backColor = "bg-gray-900"
     if (props.bgColor && props.bgColor.length === 7 && props.bgColor.startsWith("#")) {
