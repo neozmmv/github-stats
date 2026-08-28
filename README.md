@@ -2,7 +2,7 @@
 
 There are a lot of options for customizing your README.md to make your profile look good. I used one API for a long time, but suddenly it just wouldn't load my stats at all, it would just show that broken image logo on my profile, so I went and made my own.
 
-It's a small project, very simple, send a GET request to `https://github-stats.neozmmv.workers.dev/routes` to see available routes and parameters.
+It's a small project, very simple, send a GET request to `https://github-stats.neozmmv.workers.dev/` to see available routes and parameters.
 
 For listing your top 5 languages, send a GET request like:
 ```
