@@ -2,32 +2,14 @@ import { Hono } from "hono";
 import { rateLimiter } from "./middleware";
 import componentRouter from "./components/router";
 import { getInfo, getUser } from "./utils";
+import GLOBAL_ROUTES from "./global_routes";
 
 const app = new Hono<{ Bindings: CloudflareBindings }>();
 
 app.route("/", componentRouter) // components for banners and stats
 
-app.get("/routes", async (c) => {
-  return c.json({routes: [
-    {
-      url: "/languages",
-      info: "Get a SVG for showing your top languages!",
-      params: ["username", "color", "force"]
-    },
-    {
-      url: "/contributions",
-      info: "Get a SVG for showing your GitHub contributions!",
-      params: ["username", "color", "force"]
-    },
-    {
-      url: "/api/v1/stats/:username",
-      info: "Get simple info from your GitHub profile"
-    },
-    {
-      url: "/graphql",
-      info: "Get advanced info from your GitHub profile"
-    }
-  ]})
+app.get("/", async (c) => {
+  return c.json(GLOBAL_ROUTES)
 })
 
 app.get("/api/v1/stats/:username", rateLimiter, async (c) => {
