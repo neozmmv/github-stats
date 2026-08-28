@@ -9,6 +9,16 @@ const componentRouter = new Hono<{ Bindings: CloudflareBindings }>();
 const SOFT_TTL_MS = 6 * 60 * 60 * 1000       // 6h
 const HARD_TTL_SECONDS = 7 * 24 * 60 * 60    // 7d
 
+const GLOBAL_ROUTES = {
+    "message": "To force new image, use 'force=true' query parameter.",
+    "/languages": {
+        params: ["username", "color", "force"]
+    },
+    "/contributions": {
+        params: ["username", "color", "force"]
+    }
+}
+
 type SvgRenderer = (props: { username: string, token: string, bgColor: string }) => Promise<string>
 
 // "force" must not be part of the cache key, otherwise a forced request would just
@@ -96,7 +106,12 @@ function createSvgRoute(render: SvgRenderer) {
     }
 }
 
+function listRoutes(c: Context) {
+    return c.json(GLOBAL_ROUTES)
+}
+
 componentRouter.get("/languages", rateLimiter, createSvgRoute(Languages))
 componentRouter.get("/contributions", rateLimiter, createSvgRoute(Contributions))
+componentRouter.get("/", rateLimiter, listRoutes)
 
 export default componentRouter;
