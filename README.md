@@ -10,7 +10,13 @@ https://github-stats.neozmmv.workers.dev/languages?username=yourname&color=ababa
 ```
 Default `color` parameter is Tailwind's `bg-gray-900`.
 
-Images are cached on Cloudflare for 6h.
+Images are cached on Cloudflare for 6h. If you need a fresh one before that, add `force=true`:
+```
+https://github-stats.neozmmv.workers.dev/languages?username=yourname&force=true
+```
+That regenerates the image and replaces what's cached. It's limited to 2 requests per minute per IP and username, and when you go over it just serves the cached image instead of failing, so it never breaks the image on your profile.
+
+Just access the route in a tab and keep the url in your profile without `force=true`
 
 ## Stack
 This project was made using Cloudflare's Wrangler and Bun.
