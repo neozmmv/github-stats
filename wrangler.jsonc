@@ -28,6 +28,15 @@
 				"period": 60 //seconds
 			}
 		},
+		// Forced cache refresh (?force=true), keyed by ip+username
+		{
+		"name": "FORCE_RATE_LIMITER",
+		"namespace_id": "1002",
+		"simple": {
+				"limit": 2,
+				"period": 60 //seconds
+			}
+		},
 	]
 	/**
 	 * Smart Placement

@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import { rateLimiter } from "./middleware";
-import UserBanner from "./components/Languages";
 import componentRouter from "./components/router";
 import { getInfo, getUser } from "./utils";
 
@@ -13,12 +12,12 @@ app.get("/routes", async (c) => {
     {
       url: "/languages",
       info: "Get a SVG for showing your top languages!",
-      params: ["username", "color"]
+      params: ["username", "color", "force"]
     },
     {
       url: "/contributions",
       info: "Get a SVG for showing your GitHub contributions!",
-      params: ["username", "color"]
+      params: ["username", "color", "force"]
     },
     {
       url: "/api/v1/stats/:username",
