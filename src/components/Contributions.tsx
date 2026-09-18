@@ -4,6 +4,16 @@ import satori from "satori"
 import { twj } from "tw-to-css"
 import { Contributions } from "../types/interfaces"
 
+// Keep these identical in Languages.tsx so both cards line up side by side
+const DEFAULT_WIDTH = 400
+const HEIGHT = 240
+
+// Horizontal padding of the card (px-4 on each side)
+const CARD_PADDING_X = 32
+
+// Rough average glyph width of Roboto, as a fraction of the font size
+const AVG_CHAR_WIDTH_EM = 0.55
+
 // icons from https://fontawesome.com
 function StarIcon({ size = 18, color = "#f1c40f" }: { size?: number; color?: string }) {
     return (
@@ -71,7 +81,9 @@ function StatRow({
     )
 }
 
-export default async function Contributions(props: { username: string, token: string, bgColor: string }) {
+export default async function Contributions(props: { username: string, token: string, bgColor: string, width?: number }) {
+    const width = props.width ?? DEFAULT_WIDTH
+
     const contributions: Contributions = await getContributions(props.username, props.token)
     if (!contributions) throw new Error("Contributions.tsx - something went wrong with the langMap.")
 
@@ -80,9 +92,16 @@ export default async function Contributions(props: { username: string, token: st
     const isValidHex = props.bgColor && props.bgColor.length === 6
     const backgroundColor = isValidHex ? `#${props.bgColor}` : "#111827"
 
+    // The card has a fixed width now, so long usernames would overflow the title.
+    // Shrink the font (down to a floor) so the title always fits on a single line.
+    const title = `${props.username}'s GitHub Contributions`
+    const availableWidth = width - CARD_PADDING_X
+    const titleFontSize = Math.max(12, Math.min(20, Math.floor(availableWidth / (title.length * AVG_CHAR_WIDTH_EM))))
+
     const tsx = (
-        <div style={{ ...twj(`rounded-md px-4 pb-4 pt-2`), backgroundColor, display: "flex", flexDirection: "column", height: 240, minWidth: 384 }}>
-            <p style={{ ...twj("text-center text-white text-xl mb-3"), whiteSpace: "nowrap" }}>{`${props.username}'s GitHub Contributions`}</p>
+        // Root fills the whole canvas, rows stretch because StatRow uses width 100%
+        <div style={{ ...twj(`rounded-md px-4 pb-4 pt-2`), backgroundColor, display: "flex", flexDirection: "column", width: "100%", height: "100%" }}>
+            <p style={{ ...twj("text-center text-white text-xl mb-3"), fontSize: titleFontSize, whiteSpace: "nowrap" }}>{title}</p>
 
             <div style={{ ...twj("mt-1"), display: "flex", flexDirection: "column", gap: 6 }}>
                 <StatRow
@@ -108,7 +127,8 @@ export default async function Contributions(props: { username: string, token: st
     )
 
     const svg = await satori(tsx, {
-        height: 280,
+        width,
+        height: HEIGHT,
         fonts: [
             { name: "Roboto", data: fontData, weight: 400, style: "normal" }
         ]

@@ -3,7 +3,14 @@ import { getLanguageMap, loadGoogleFont } from "../utils"
 import satori from "satori"
 import { twj } from "tw-to-css"
 
-export default async function Languages(props: { username: string, token: string, bgColor: string }) {
+// Canvas and card share the same size, so there is no transparent area around the card.
+// Keep HEIGHT identical in Contributions.tsx so both cards line up side by side.
+const DEFAULT_WIDTH = 400
+const HEIGHT = 240
+
+export default async function Languages(props: { username: string, token: string, bgColor: string, width?: number }) {
+    const width = props.width ?? DEFAULT_WIDTH
+
     const langMap = await getLanguageMap(props.username, props.token)
     if (!langMap) throw new Error("Languages.tsx - something went wrong with the langMap.")
 
@@ -20,7 +27,8 @@ export default async function Languages(props: { username: string, token: string
     const backgroundColor = isValidHex ? `#${props.bgColor}` : "#111827"
 
     const tsx = (
-        <div style={{ ...twj(`w-96 rounded-md px-4 pb-4 pt-2`), backgroundColor, display: "flex", flexDirection: "column", height: 240 }}>
+        // Root fills the whole canvas, children stretch through flex and percentage widths
+        <div style={{ ...twj(`rounded-md px-4 pb-4 pt-2`), backgroundColor, display: "flex", flexDirection: "column", width: "100%", height: "100%" }}>
             <p style={twj("text-center text-white text-xl mb-3")}>Most used languages</p>
 
             <div style={{ ...twj("w-full h-3 rounded-full overflow-hidden"), display: "flex" }}>
@@ -50,8 +58,8 @@ export default async function Languages(props: { username: string, token: string
     )
 
     const svg = await satori(tsx, {
-        width: 400,
-        height: 280,
+        width,
+        height: HEIGHT,
         fonts: [
             { name: "Roboto", data: fontData, weight: 400, style: "normal" }
         ]
